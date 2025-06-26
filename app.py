@@ -7,7 +7,7 @@ app_ui = ui.page_fluid(
     ui.input_slider(
         "selected_number_of_bins", 
         "Number of Bins", 
-        min=0, 
+        min=1, 
         max=100, 
         value=20
     ),
@@ -16,11 +16,17 @@ app_ui = ui.page_fluid(
 
 def server(input, output, session):
     @output
-    @render.plot(alt="A histogram showing random data")
+    @render.plot(alt="A histogram with custom color")
     def histogram_plot():
         np.random.seed(42)
         data = 100 + 15 * np.random.randn(437)
-        plt.hist(data, bins=input.selected_number_of_bins(), density=True, color='green')  # ✅ couleur
+        bins = input.selected_number_of_bins()
+        
+        counts, edges = np.histogram(data, bins=bins, density=True)
+        centers = 0.5 * (edges[1:] + edges[:-1])
+
+        plt.bar(centers, counts, width=(edges[1]-edges[0]), color='green', edgecolor='black')
+        
         plt.title("Random Data Histogram")
         plt.xlabel("Value")
         plt.ylabel("Density")
